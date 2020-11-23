@@ -1,17 +1,20 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Link } from 'react-router-dom';
+import validator from 'validator';
 import { startGoogleLogin, startLoginWithEmailPassword } from '../../actions/auth';
+import { setError, unsetError } from '../../actions/ui';
 import useForm from '../../hooks/useForm';
 
 const LoginScreen = () => {
 
     const dispatch = useDispatch();
+    const { msgError, loading } = useSelector( state => state.ui );
 
     const [ formValues, handleInputChange ] = useForm({
         email: 'david1997@live.com.ar',
-        password: '12345'
+        password: '123456'
     });
 
     const { email, password } = formValues;
@@ -19,11 +22,29 @@ const LoginScreen = () => {
 
     const handleLogin = (e) =>{
         e.preventDefault();
-        dispatch( startLoginWithEmailPassword(email, password) );
+
+        if ( isFormValid() ) {
+            dispatch( startLoginWithEmailPassword(email, password) );
+        }
     };
 
     const handleGoogleLogin = () => {
         dispatch( startGoogleLogin() );
+    }
+
+    const isFormValid = () => {
+        if( !validator.isEmail(email) ) {
+            dispatch( setError('Email invalid') )
+            return false;
+        }
+
+        if( password.length === 0 ) {
+            dispatch( setError('Password is empty') )
+            return false;
+        }
+        
+        dispatch( unsetError() );
+        return true;
     }
 
     return (
@@ -31,6 +52,11 @@ const LoginScreen = () => {
             <h3 className="auth__title">Login</h3>
             
             <form onSubmit={ handleLogin }>
+                {msgError &&
+                    <div className="auth__alert-error">
+                        { msgError }
+                    </div>
+                }
                 <input 
                     type="text"
                     placeholder="Email"
@@ -53,6 +79,7 @@ const LoginScreen = () => {
                 <button
                     type="submit" 
                     className="btn btn-primary btn-block"
+                    disabled = { loading }
                 >
                     Log In
                 </button>
