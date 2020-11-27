@@ -50,12 +50,8 @@
     display: flex;
     margin-bottom: 10px;
     overflow: hidden;
+    justify-content: space-between;
 
-    transition: scale .2s ease-in-out;
-
-    &:hover{
-        scale: 1.1;
-    }
 }
 
 .journal__entry-picture {
